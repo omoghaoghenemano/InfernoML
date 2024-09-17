@@ -14,3 +14,5 @@ add_library(InfernoML STATIC
 # Example executable
 add_executable(linear_regression_example examples/linear_regression_example.cpp)
 target_link_libraries(linear_regression_example PRIVATE InfernoML)
+
+
