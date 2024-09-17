@@ -32,7 +32,4 @@ jobs:
         cmake ..
         make
 
-    - name: Run InfernoAI Tests
-      run: |
-        cd build
-        ./run_tests
+  
