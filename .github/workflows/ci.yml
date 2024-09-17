@@ -1,12 +1,12 @@
-name: A
+name: InfernoAI CI
 
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   build:
@@ -16,24 +16,23 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up CMake
-      uses: cmake/setup-cmake@v3
-      with:
-        cmake-version: '3.24'  # Specify the CMake version you need
-
-    - name: Install dependencies
+    - name: Install CMake
       run: |
         sudo apt-get update
+        sudo apt-get install -y cmake
+
+    - name: Install build tools
+      run: |
         sudo apt-get install -y build-essential
 
-    - name: Build C++ Library
+    - name: Build InfernoAI Library
       run: |
         mkdir -p build
         cd build
         cmake ..
         make
 
-    - name: Run C++ Tests
+    - name: Run InfernoAI Tests
       run: |
         cd build
         ./run_tests
