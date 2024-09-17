@@ -1,38 +1,64 @@
 #include "algorithms/linear_regression.h"
-#include <numeric> // for std::accumulate
+#include <numeric>
+#include <cmath>
 
 namespace algorithms {
 
-void LinearRegression::fit(const std::vector<double>& x, const std::vector<double>& y) {
-    if (x.size() != y.size() || x.empty()) {
-        throw std::invalid_argument("Input vectors must be of the same size and non-empty.");
-    }
-
-    double x_mean = mean(x);
-    double y_mean = mean(y);
-
-    double numerator = 0.0;
-    double denominator = 0.0;
-
-    for (size_t i = 0; i < x.size(); ++i) {
-        numerator += (x[i] - x_mean) * (y[i] - y_mean);
-        denominator += (x[i] - x_mean) * (x[i] - x_mean);
-    }
-
-    if (denominator == 0.0) {
-        throw std::runtime_error("Denominator in slope calculation is zero.");
-    }
-
-    m_slope = numerator / denominator;
-    m_intercept = y_mean - m_slope * x_mean;
-}
-
-double LinearRegression::predict(double x) const {
-    return m_slope * x + m_intercept;
-}
-
+// Compute the mean of a vector
 double LinearRegression::mean(const std::vector<double>& v) const {
     return std::accumulate(v.begin(), v.end(), 0.0) / v.size();
+}
+
+// Compute the cost (Mean Squared Error)
+double LinearRegression::computeCost(const std::vector<double>& x, const std::vector<double>& y) const {
+    double total_error = 0.0;
+    size_t n = x.size();
+    for (size_t i = 0; i < n; ++i) {
+        double prediction = m_slope * x[i] + m_intercept;
+        double error = prediction - y[i];
+        total_error += error * error;
+    }
+    return total_error / (2 * n); // Mean Squared Error
+}
+
+// Perform gradient descent to optimize slope and intercept
+void LinearRegression::gradientDescent(const std::vector<double>& x, const std::vector<double>& y) {
+    size_t n = x.size();
+    for (int i = 0; i < m_iterations; ++i) {
+        double slope_gradient = 0.0;
+        double intercept_gradient = 0.0;
+        for (size_t j = 0; j < n; ++j) {
+            double prediction = m_slope * x[j] + m_intercept;
+            double error = prediction - y[j];
+            slope_gradient += error * x[j];
+            intercept_gradient += error;
+        }
+        slope_gradient /= n;
+        intercept_gradient /= n;
+
+        m_slope -= m_learning_rate * slope_gradient;
+        m_intercept -= m_learning_rate * intercept_gradient;
+
+        // Optional: Print cost every 100 iterations
+        if (i % 100 == 0) {
+            double cost = computeCost(x, y);
+             //uncomment to see cost progress
+            // std::cout << "Iteration " << i << ": Cost " << cost << std::endl;
+        }
+    }
+}
+
+// Fit the model using gradient descent
+void LinearRegression::fit(const std::vector<double>& x, const std::vector<double>& y) {
+    if (x.size() != y.size()) {
+        throw std::invalid_argument("Input vectors must have the same size.");
+    }
+    gradientDescent(x, y);
+}
+
+// Predict the output for a given input
+double LinearRegression::predict(double x) const {
+    return m_slope * x + m_intercept;
 }
 
 } // namespace algorithms
