@@ -1,18 +1,30 @@
 cmake_minimum_required(VERSION 3.10)
 project(InfernoML)
 
+# Set C++ standard
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Include directories
 include_directories(include)
 
-# Source files
+# Define libraries
 add_library(InfernoML STATIC
     src/algorithms/linear_regression.cpp
 )
 
-# Example executable
+add_library(Activations STATIC
+    src/activation/activation_functions.cpp
+)
+
+# Define executables
 add_executable(linear_regression_example examples/linear_regression_example.cpp)
+add_executable(activation_functions_example examples/activation_functions_example.cpp)
+
+# Link libraries to executables
 target_link_libraries(linear_regression_example PRIVATE InfernoML)
+target_link_libraries(activation_functions_example PRIVATE Activations)
 
-
+# Ensure that include directories are added for the specific targets if necessary
+target_include_directories(linear_regression_example PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(activation_functions_example PRIVATE ${PROJECT_SOURCE_DIR}/include)
